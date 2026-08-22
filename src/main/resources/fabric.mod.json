@@ -1,0 +1,22 @@
+{
+	"schemaVersion": 1,
+	"id": "jscore-js-runtime",
+	"version": "${version}",
+	"name": "JSCore JS Runtime",
+	"description": "GraalJS language provider for JSCore.",
+	"authors": [
+		"Siriusmart"
+	],
+	"license": "CC0-1.0",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"ws.siri.jscore.js.JsLangInit"
+		]
+	},
+	"depends": {
+		"jscore": "~${jscore_version}",
+		"fabricloader": ">=0.19.3",
+		"java": ">=25"
+	}
+}
