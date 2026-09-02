@@ -32,9 +32,9 @@ public class JsModule implements LangSpecificModule {
     public Object getMember(String key) {
         switch (key) {
             case "exports":
-                return Utils.dangerouslyCastOptional(internal.getExports()).orElse(Undefined.instance);
+                return internal.getExportsInternal().map(v -> (Object) v).orElse(Undefined.instance);
             case "onunload":
-                return Utils.dangerouslyCastOptional(internal.getOnUnload()).orElse(Undefined.instance);
+                return internal.getExportsInternal().map(v -> (Object) v).orElse(Undefined.instance);
             case "import":
                 // note: Value is String[]
                 return (ThroableBiFunction<String, List<String>, Object, IOException>) (path, preludeNames) -> {
@@ -68,17 +68,17 @@ public class JsModule implements LangSpecificModule {
         switch (key) {
             case "exports":
                 if (JsUtils.isUndefined(value))
-                    this.internal.setExports(Optional.empty());
+                    this.internal.setExportsInternal(Optional.empty());
                 else
-                    this.internal.setExports(Optional.of(value));
+                    this.internal.setExportsInternal(Optional.of(value));
                 break;
             case "onunload":
                 if (JsUtils.isUndefined(value))
-                    this.internal.setOnUnload(Optional.empty());
+                    this.internal.setOnUnloadInternal(Optional.empty());
                 else if (!value.canExecute())
                     throw new Errors.TypeMismatchException("function", value.getMetaObject().getMetaSimpleName());
                 else
-                    this.internal.setOnUnload(Optional.of(value.as(Runnable.class)));
+                    this.internal.setOnUnloadInternal(Optional.of(value.as(Runnable.class)));
                 break;
             default:
                 throw new UnsupportedOperationException();
@@ -89,10 +89,10 @@ public class JsModule implements LangSpecificModule {
     public boolean removeMember(String key) {
         switch (key) {
             case "exports":
-                internal.setExports(Optional.empty());
+                internal.setExportsInternal(Optional.empty());
                 return true;
             case "onunload":
-                internal.setOnUnload(Optional.empty());
+                internal.setOnUnloadInternal(Optional.empty());
                 return true;
             default:
                 return false;
