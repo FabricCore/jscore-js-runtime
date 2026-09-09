@@ -2,14 +2,19 @@ package ws.siri.jscore.js;
 
 import ws.siri.jscore.runtime.Module;
 import ws.siri.jscore.runtime.ClassMarkers.LangSpecificModule;
-import ws.siri.jscore.Utils;
+import ws.siri.jscore.runtime.ClassMarkers.Prelude;
 import ws.siri.jscore.runtime.Errors;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.graalvm.polyglot.Value;
+import org.graalvm.polyglot.proxy.ProxyExecutable;
+import org.graalvm.polyglot.proxy.ProxyObject;
 
 import com.oracle.truffle.js.runtime.objects.Undefined;
 
@@ -34,12 +39,25 @@ public class JsModule implements LangSpecificModule {
             case "exports":
                 return internal.getExportsInternal().map(v -> (Object) v).orElse(Undefined.instance);
             case "onunload":
-                return internal.getExportsInternal().map(v -> (Object) v).orElse(Undefined.instance);
+                return internal.getOnUnloadInternal().map(v -> (Object) v).orElse(Undefined.instance);
             case "import":
                 // note: Value is String[]
-                return (ThroableBiFunction<String, List<String>, Object, IOException>) (path, preludeNames) -> {
-                    Optional<Value> res = internal.importRelative(path, preludeNames.toArray(String[]::new));
+                return (ThroableBiFunction<String, List<Prelude>, Object, IOException>) (path, preludes) -> {
+                    Optional<Value> res = internal.importRelative(path, preludes);
                     return JsUtils.unwrapOrUndefined(res);
+                };
+            case "unimport":
+                return (Consumer<String>) (path) -> this.internal.unimportRelative(path);
+            case "createPrelude":
+                return new ProxyExecutable() {
+                    @Override
+                    public Object execute(Value... arguments) {
+                        if (arguments.length != 1)
+                            throw new IllegalArgumentException(
+                                    String.format("expected %d argument, got %d", 1, arguments.length));
+
+                        return internal.createPrelude(arguments[0]::executeVoid);
+                    }
                 };
             default:
                 return Undefined.instance;
@@ -48,7 +66,7 @@ public class JsModule implements LangSpecificModule {
 
     @Override
     public Object getMemberKeys() {
-        return new String[] { "exports", "onload", "import" };
+        return new String[] { "exports", "onload", "import", "unimport", "createPrelude" };
     }
 
     @Override
@@ -57,6 +75,8 @@ public class JsModule implements LangSpecificModule {
             case "exports":
             case "onload":
             case "import":
+            case "unimport":
+            case "createPrelude":
                 return true;
             default:
                 return false;

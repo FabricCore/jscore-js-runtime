@@ -106,5 +106,13 @@ publishing {
 
 	repositories {
 		// Add repositories to publish to here.
+        maven {
+            name = "siriReposilite"
+            url = uri("https://maven.siri.ws/releases")
+            credentials(PasswordCredentials::class)
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
+        }
 	}
 }
