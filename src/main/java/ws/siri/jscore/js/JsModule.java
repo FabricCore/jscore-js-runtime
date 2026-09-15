@@ -59,6 +59,8 @@ public class JsModule implements LangSpecificModule {
                         return internal.createPrelude(arguments[0]::executeVoid);
                     }
                 };
+            case "path":
+                return internal.getName();
             default:
                 return Undefined.instance;
         }
@@ -66,17 +68,18 @@ public class JsModule implements LangSpecificModule {
 
     @Override
     public Object getMemberKeys() {
-        return new String[] { "exports", "onload", "import", "unimport", "createPrelude" };
+        return new String[] { "exports", "onunload", "import", "unimport", "createPrelude", "path" };
     }
 
     @Override
     public boolean hasMember(String key) {
         switch (key) {
             case "exports":
-            case "onload":
+            case "onunload":
             case "import":
             case "unimport":
             case "createPrelude":
+            case "path":
                 return true;
             default:
                 return false;
