@@ -1,20 +1,17 @@
 package ws.siri.jscore.js;
 
 import ws.siri.jscore.runtime.Module;
-import ws.siri.jscore.runtime.ClassMarkers.LangSpecificModule;
-import ws.siri.jscore.runtime.ClassMarkers.Prelude;
+import ws.siri.jscore.runtime.LangSpecificModule;
+import ws.siri.jscore.runtime.Prelude;
 import ws.siri.jscore.runtime.Errors;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import org.graalvm.polyglot.Value;
 import org.graalvm.polyglot.proxy.ProxyExecutable;
-import org.graalvm.polyglot.proxy.ProxyObject;
 
 import com.oracle.truffle.js.runtime.objects.Undefined;
 
